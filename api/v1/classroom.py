@@ -6,21 +6,19 @@ from flask import request
 
 from alchemy import db
 from models.classroom import Classroom
+from schemas.classroom import ClassroomSchema
 from .api_v1 import api_v1
 
 
-parser = RequestParser()
-parser.add_argument("number", type=str, required=True)
+classroom_schema = ClassroomSchema()
+classrooms_schema = ClassroomSchema(many=True)
 
 
 class ClassRoomResource(Resource):
 
     def get(self, id):
         cr = db.session.query(Classroom).get(id)
-        return {
-            "id": id,
-            "number": cr.number,
-        }
+        return classroom_schema.dump(cr).data
 
     def delete(self, id):
         cr = db.session.query(Classroom).get(id)
@@ -30,40 +28,21 @@ class ClassRoomResource(Resource):
         return {}, 204
 
     def put(self, id):
-        cr = db.session.query(Classroom).get(id)
-
-        args = parser.parse_args()
-
-        for k, v in args.items():
-            setattr(cr, k, v)
-
+        cr = classroom_schema.load(request.json)
         db.session.commit()
-
-        return {
-            "id": id,
-            "number": cr.number,
-        }, 201
+        return classroom_schema.dump(cr.data).data, 201
 
 class ClassRoomListResource(Resource):
 
     def get(self):
         classes = db.session.query(Classroom).all()
-        return [{
-            "id": cr.id,
-            "number": cr.number,
-        } for cr in classes]
+        return classrooms_schema.dump(classes).data
 
     def post(self):
-        args = parser.parse_args()
-
-        cr = Classroom(**args)
-        db.session.add(cr)
+        cr = classroom_schema.load(request.json)
+        db.session.add(cr.data)
         db.session.commit()
-
-        return {
-            "id": cr.id,
-            "number": cr.number,
-        }, 201
+        return classroom_schema.dump(cr.data).data, 201
 
 api_v1.add_resource(ClassRoomListResource, "/classroom")
 api_v1.add_resource(ClassRoomResource, "/classroom/<int:id>")
