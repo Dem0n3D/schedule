@@ -17,7 +17,7 @@ class Lesson(db.Model):
     number = Column(Integer, nullable=False)  # lesson number (daywise)
 
     classroom_id = Column(Integer, ForeignKey("classroom.id"), nullable=False)
-    classroom = relationship("Clasroom", backref="lessons")
+    classroom = relationship("Classroom", backref="lessons")
 
     teacher_id = Column(Integer, ForeignKey("teacher.id"), nullable=False)
     teacher = relationship("Teacher", backref="lessons")
