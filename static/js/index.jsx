@@ -10,6 +10,7 @@ import ReactDOM from 'react-dom';
 import {createStore, combineReducers, applyMiddleware} from 'redux';
 import {Provider, connect} from 'react-redux';
 import thunkMiddleware from 'redux-thunk';
+import {Route, Link, Switch, BrowserRouter} from 'react-router-dom';
 
 import {GroupList} from './group';
 import {CorpusList} from './corpus';
@@ -44,8 +45,16 @@ class App extends React.Component {
             <div>
                 <h1>Scheduler</h1>
 
-                <GroupList data={this.state.groups} />
-                <CorpusList data={this.state.corpus} />
+                <Switch>
+                    <Route path="/groups" component={() => <GroupList data={this.state.groups} />} />
+                    <Route path="/corpus" component={() => <CorpusList data={this.state.corpus} />} />
+                </Switch>
+
+                <div>
+                    <Link to="/groups">Groups</Link>
+                    &nbsp;
+                    <Link to="/corpus">Corpus</Link>
+                </div>
             </div>
         );
     }
@@ -55,7 +64,9 @@ class App extends React.Component {
 $(function() {
     ReactDOM.render(
         <Provider store={store}>
-            <App/>
+            <BrowserRouter>
+                <App/>
+            </BrowserRouter>
         </Provider>,
         $("#app")[0]
     );
